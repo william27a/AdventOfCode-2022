@@ -12,6 +12,7 @@ def splitFirstLayer(listAsString):
     layer = 0
     splitList = []
     deepTemp = ""
+    num = ""
     for x in listAsString:
         if x == "[":
             layer += 1
@@ -23,10 +24,17 @@ def splitFirstLayer(listAsString):
                 splitList.append(deepTemp)
                 deepTemp = ""
         elif layer == 0:
-            if x != ",":
-                splitList.append(int(x))
+            if x == ",":
+                if num != "":
+                    splitList.append(int(num))
+                    num = ""
+            else:
+                num += x
         else:
             deepTemp += x
+    if num != "":
+        splitList.append(int(num))
+        num = ""
     return splitList
 
 class DeepList:
