@@ -4,8 +4,8 @@ from enum import Enum
 #line = [0, [1, 1, 1, 1, 1], 2, [3, [3, 3], 3], 4]
 
 class optionalBoolean(Enum):
-    TRUE = 0
-    FALSE = 1
+    FALSE = 0
+    TRUE = 1
     MAYBE = 2
 
 def splitFirstLayer(listAsString):
@@ -62,20 +62,17 @@ class DeepList:
             elementOther = otherDeepList.deepenedList[i]
 
             if type(elementSelf) == int and type(elementOther) == int:
-                print("comparing integers")
                 if elementSelf < elementOther:
                     return optionalBoolean.TRUE
                 elif elementSelf > elementOther:
                     return optionalBoolean.FALSE
             elif type(elementSelf) == int and type(elementOther) == list:
-                print("RECURSE")
                 comparison = DeepList([elementSelf]).compare(DeepList(elementOther))
                 if comparison == optionalBoolean.TRUE:
                     return optionalBoolean.TRUE
                 elif comparison == optionalBoolean.FALSE:
                     return optionalBoolean.FALSE
             elif type(elementSelf) == list and type(elementOther) == int:
-                print("RECURSE")
                 comparison = DeepList(elementSelf).compare(DeepList([elementOther]))
                 if comparison == optionalBoolean.TRUE:
                     return optionalBoolean.TRUE
@@ -94,40 +91,51 @@ class DeepList:
             return optionalBoolean.FALSE
         return optionalBoolean.MAYBE
             
-            
+def sort(allPackets):
+    sortedPackets = []
+    for packet in allPackets:
+        if len(sortedPackets) == 0:
+            sortedPackets.append(packet)
+        else:
+            for index in range(len(sortedPackets)):
+                if packet.compare(sortedPackets[index]) == optionalBoolean.FALSE:
+                    sortedPackets.insert(index, packet)
+                    break
+                if index == len(sortedPackets)-1:
+                    sortedPackets.append(packet)
+    return sortedPackets
 
 
 def getInput(input):
+    allPackets = []
+
     with open(input, "r") as file:
-        orderedIdxs = []
-        index = 0
-        leftList = None
-        rightList = None
-        lineNumber = 0
         for line in file:
-            lineNumber += 1
-            if line == "\n":
-                index += 1
-                comparison = leftList.compare(rightList)
-                print(leftList.deepenedList)
-                print(rightList.deepenedList)
-                print(comparison)
-                print()
-                if comparison == optionalBoolean.TRUE:
-                    orderedIdxs.append(index)
-                leftList = None
-                rightList = None
-            else:
-                if leftList == None:
-                    leftList = DeepList(DeepList.deepen(line))
-                elif rightList == None:
-                    rightList = DeepList(DeepList.deepen(line))
-        if leftList != None and rightList != None:
-            index += 1
-            comparison = leftList.compare(rightList)
-            if comparison == optionalBoolean.TRUE:
-                orderedIdxs.append(index)
-        print(orderedIdxs)
-        print(sum(orderedIdxs))
+            if line != "\n":
+                allPackets.append(DeepList(DeepList.deepen(line)))
+    
+    allPackets.append(DeepList([2]))
+    allPackets.append(DeepList([6]))
+
+    print()
+    print()
+    print()
+
+    allPackets = sort(allPackets)
+    allPackets.reverse()
+    decoderKey = 1
+    for index in range(len(allPackets)):
+        if allPackets[index].deepenedList == [2]:
+            decoderKey *= (index+1)
+            print("Found [2]")
+        elif allPackets[index].deepenedList == [6]:
+            decoderKey *= (index+1)
+            print("Found [6]")
+    for packet in allPackets:
+        print(packet.deepenedList)
+    print(decoderKey)
+
+
+
 
 getInput("input.txt")
