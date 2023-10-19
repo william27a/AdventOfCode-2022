@@ -12,27 +12,24 @@ def getManhattanDistance(point1, point2):
     return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
 
 def getInput(input, size):
-
-    done = False
+    lambds = []
 
     with open(input, "r") as file:
-        fileRead = [line for line in file]
-
-    for row in range(size):
-        allPoints = set()
-        for line in fileRead:
+        for line in file:
             words = line.strip().split()
             sensor = (int(words[2][2:-1]), int(words[3][2:-1]))
             beacon = (int(words[8][2:-1]), int(words[9][2:]))
             distance = getManhattanDistance(sensor, beacon)
-            points = getAllPointsNear(sensor, row, distance)
-            allPoints = allPoints.union(points)
-        for column in range(size+1):
-            if (column, row) not in allPoints:
+            lambds.append(eval("lambda x: getManhattanDistance("+str(sensor)+", x) <=" + str(distance)))
+    
+    for column in range(size + 1):
+        for row in range(size + 1):
+            overall = False
+            for lambd in lambds:
+                if lambd((column, row)) == True:
+                    overall = True
+            if overall == False:
                 print(column * 4000000 + row)
-                done = True
-                break
-        if done:
-            break
+        print(column/(size+1))
 
 getInput("input.txt", 4000000)
